@@ -2,10 +2,10 @@
 const HomePage = () => {
     return `
     <nav class="tab-nav">
-        <button class="tab active">Home</button>
-        <button class="tab">Catalog</button>
-        <button class="tab">Recipe</button>
-        <button class="tab">Preferences</button>
+        <button class="tab active" data-link="/">Home</button>
+        <button class="tab" data-link="/chat">AI Chat</button>
+        <button class="tab" data-link="/recipe">Recipe</button>
+        <button class="tab" data-link="/preferences">Preferences</button>
     </nav>
 
     <div class="screen home-screen">
@@ -37,25 +37,6 @@ const HomePage = () => {
                     <h3 class="rec-title">Americano</h3>
                     <p class="rec-desc">Strong espresso with hot water</p>
                     <span class="badge">Easy</span>
-                </div>
-            </div>
-        </section>
-
-        <section class="section">
-            <h2 class="section-label">QUICK ACCESS</h2>
-            <div class="quick-access-row">
-                <div class="quick-item">
-                <span class="quick-icon">📖</span>
-                <div>
-                    <div class="quick-title">All recipes</div>
-                    <div class="quick-sub">24 drinks</div>
-                </div>
-            </div>
-            <div class="quick-item">
-                <span class="quick-icon">⚙️</span>
-                <div>
-                    <div class="quick-title">My preferences</div>
-                    <div class="quick-sub">Edit profile</div>
                 </div>
             </div>
         </section>
