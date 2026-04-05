@@ -1,7 +1,13 @@
 import HomePage from "./pages/home.js";
+import ChatPage from "./pages/chat.js";
+import RecipePage from "./pages/recipe.js";
+import PreferencesPage from "./pages/preferences.js";
 
 const routes = {
     '/': HomePage,
+    '/chat': ChatPage,
+    '/recipe': RecipePage,
+    '/preferences': PreferencesPage
 };
 
 function getPath() {
