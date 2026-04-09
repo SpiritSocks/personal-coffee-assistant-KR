@@ -1,13 +1,13 @@
-import HomePage from "./pages/home.js";
-import ChatPage from "./pages/chat.js";
-import RecipePage from "./pages/recipe.js";
-import PreferencesPage from "./pages/preferences.js";
+import * as Home from "./pages/home.js";
+import * as Chat from "./pages/chat.js";
+import * as Catalog from "./pages/catalog.js";
+import * as Preferences from "./pages/preferences.js";
 
 const routes = {
-    '/': HomePage,
-    '/chat': ChatPage,
-    '/recipe': RecipePage,
-    '/preferences': PreferencesPage
+    '/':            Home,
+    '/chat':        Chat,
+    '/catalog':     Catalog,
+    '/preferences': Preferences,
 };
 
 function getPath() {
@@ -18,14 +18,14 @@ function navigate(path) {
     window.location.hash = path;
 }
 
-
 function render() {
     const full = getPath();
     const path = full.split('?')[0];
-    const fn = routes[path] ?? HomePage;
+    const mod = routes[path] ?? Home;
 
-    document.getElementById('app').innerHTML = fn(full);
+    document.getElementById('app').innerHTML = mod.default(full);
     bindLinks();
+    if (typeof mod.mount === 'function') mod.mount();
 }
 
 function bindLinks() {
