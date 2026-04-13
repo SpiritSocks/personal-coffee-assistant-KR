@@ -25,50 +25,52 @@ const PreferencesPage = () => {
     prefs = loadPrefs();
     return `
     <nav class="tab-nav">
-        <button class="tab" data-link="/">Home</button>
-        <button class="tab" data-link="/chat">AI Chat</button>
-        <button class="tab" data-link="/catalog">Catalog</button>
-        <button class="tab active" data-link="/preferences">Preferences</button>
+        <button class="tab-nav__tab" data-link="/">Home</button>
+        <button class="tab-nav__tab" data-link="/chat">AI Chat</button>
+        <button class="tab-nav__tab" data-link="/catalog">Catalog</button>
+        <button class="tab-nav__tab tab-nav__tab--active" data-link="/preferences">Preferences</button>
     </nav>
 
-    <div class="screen preferences-screen">
-        <div class="pref-card">
-            <h2 class="pref-title">Coffee strength</h2>
-            <input
-                type="range"
-                min="1"
-                max="5"
-                step="1"
-                value="${prefs.strength}"
-                class="pref-slider"
-                id="pref-strength"
-            >
-            <div class="pref-slider-labels">
-                <span>Mild</span>
-                <span>Strong</span>
+    <div class="screen screen--preferences">
+        <div class="prefs">
+            <div class="prefs__card">
+                <h2 class="prefs__title">Coffee strength</h2>
+                <input
+                    type="range"
+                    min="1"
+                    max="5"
+                    step="1"
+                    value="${prefs.strength}"
+                    class="prefs__slider"
+                    id="pref-strength"
+                >
+                <div class="prefs__slider-labels">
+                    <span>Mild</span>
+                    <span>Strong</span>
+                </div>
             </div>
-        </div>
 
-        <div class="pref-card">
-            <h2 class="pref-title">Add-ons</h2>
-            <div class="pref-row">
-                <span class="pref-label">With milk</span>
-                <label class="toggle">
-                    <input type="checkbox" id="pref-milk" ${prefs.milk ? 'checked' : ''}>
-                    <span class="toggle-track"><span class="toggle-thumb"></span></span>
-                </label>
+            <div class="prefs__card">
+                <h2 class="prefs__title">Add-ons</h2>
+                <div class="prefs__row">
+                    <span class="prefs__label">With milk</span>
+                    <label class="toggle">
+                        <input type="checkbox" class="toggle__input" id="pref-milk" ${prefs.milk ? 'checked' : ''}>
+                        <span class="toggle__track"><span class="toggle__thumb"></span></span>
+                    </label>
+                </div>
+                <div class="prefs__divider"></div>
+                <div class="prefs__row">
+                    <span class="prefs__label">With sugar</span>
+                    <label class="toggle">
+                        <input type="checkbox" class="toggle__input" id="pref-sugar" ${prefs.sugar ? 'checked' : ''}>
+                        <span class="toggle__track"><span class="toggle__thumb"></span></span>
+                    </label>
+                </div>
             </div>
-            <div class="pref-divider"></div>
-            <div class="pref-row">
-                <span class="pref-label">With sugar</span>
-                <label class="toggle">
-                    <input type="checkbox" id="pref-sugar" ${prefs.sugar ? 'checked' : ''}>
-                    <span class="toggle-track"><span class="toggle-thumb"></span></span>
-                </label>
-            </div>
-        </div>
 
-        <button class="pref-save" id="pref-save">Save & regenerate AI recommendation</button>
+            <button class="prefs__save" id="pref-save">Save &amp; regenerate AI recommendation</button>
+        </div>
     </div>
     `;
 };
@@ -95,10 +97,10 @@ export const mount = () => {
         savePrefs(prefs);
         const original = saveBtn.textContent;
         saveBtn.textContent = 'Saved ✓';
-        saveBtn.classList.add('saved');
+        saveBtn.classList.add('prefs__save--saved');
         setTimeout(() => {
             saveBtn.textContent = original;
-            saveBtn.classList.remove('saved');
+            saveBtn.classList.remove('prefs__save--saved');
         }, 1500);
     });
 };

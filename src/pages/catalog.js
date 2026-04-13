@@ -1,14 +1,16 @@
+import { CoffeeRecipe } from '../models/CoffeeRecipe.js';
+
 // Mock data — to be replaced with free API later
-const mockRecipes = [
-    { id: 1, name: 'Flat White',   desc: 'Velvety double ristretto',   time: '5 min', icon: '☕', category: 'milk' },
-    { id: 2, name: 'Iced Latte',   desc: 'Espresso over ice',          time: '3 min', icon: '🧋', category: 'cold' },
-    { id: 3, name: 'Pour Over',    desc: 'Clean bright cup',           time: '8 min', icon: '🫖', category: 'espresso' },
-    { id: 4, name: 'Cortado',      desc: 'Equal parts espresso+milk',  time: '4 min', icon: '🍵', category: 'milk' },
-    { id: 5, name: 'Americano',    desc: 'Strong espresso with water', time: '2 min', icon: '☕', category: 'espresso' },
-    { id: 6, name: 'Cappuccino',   desc: 'Espresso with foamed milk',  time: '5 min', icon: '☕', category: 'milk' },
-    { id: 7, name: 'Cold Brew',    desc: 'Slow steeped, smooth',       time: '12h',   icon: '🧊', category: 'cold' },
-    { id: 8, name: 'Espresso',     desc: 'Pure concentrated shot',     time: '1 min', icon: '☕', category: 'espresso' },
-];
+const recipes = CoffeeRecipe.listFromJSON([
+    { id: 1, name: 'Flat White',  desc: 'Velvety double ristretto',   time: '5 min', icon: '☕', category: 'milk' },
+    { id: 2, name: 'Iced Latte',  desc: 'Espresso over ice',          time: '3 min', icon: '🧋', category: 'cold' },
+    { id: 3, name: 'Pour Over',   desc: 'Clean bright cup',           time: '8 min', icon: '🫖', category: 'espresso' },
+    { id: 4, name: 'Cortado',     desc: 'Equal parts espresso+milk',  time: '4 min', icon: '🍵', category: 'milk' },
+    { id: 5, name: 'Americano',   desc: 'Strong espresso with water', time: '2 min', icon: '☕', category: 'espresso' },
+    { id: 6, name: 'Cappuccino',  desc: 'Espresso with foamed milk',  time: '5 min', icon: '☕', category: 'milk' },
+    { id: 7, name: 'Cold Brew',   desc: 'Slow steeped, smooth',       time: '12h',   icon: '🧊', category: 'cold' },
+    { id: 8, name: 'Espresso',    desc: 'Pure concentrated shot',     time: '1 min', icon: '☕', category: 'espresso' },
+]);
 
 const categories = [
     { id: 'all',      label: 'All' },
@@ -21,64 +23,50 @@ const categories = [
 let activeCategory = 'all';
 let searchQuery = '';
 
-const renderCard = (r) => `
-    <div class="catalog-card">
-        <div class="catalog-icon">${r.icon}</div>
-        <div class="catalog-info">
-            <h3 class="catalog-title">${r.name}</h3>
-            <p class="catalog-desc">${r.desc}</p>
-            <span class="badge">${r.time}</span>
+const renderGrid = () => {
+    const filtered = recipes.filter(r =>
+        r.matchesCategory(activeCategory) && r.matchesQuery(searchQuery)
+    );
+
+    if (filtered.length === 0) {
+        return `<p class="catalog__empty">No recipes found</p>`;
+    }
+    return filtered.map(r => r.renderCatalogCard()).join('');
+};
+
+const CatalogPage = () => `
+    <nav class="tab-nav">
+        <button class="tab-nav__tab" data-link="/">Home</button>
+        <button class="tab-nav__tab" data-link="/chat">AI Chat</button>
+        <button class="tab-nav__tab tab-nav__tab--active" data-link="/catalog">Catalog</button>
+        <button class="tab-nav__tab" data-link="/preferences">Preferences</button>
+    </nav>
+
+    <div class="screen screen--catalog">
+        <div class="catalog">
+            <input
+                type="text"
+                class="catalog__search"
+                id="catalog-search"
+                placeholder="Search recipes..."
+                value="${searchQuery}"
+            >
+
+            <div class="catalog__filters" id="catalog-filters">
+                ${categories.map(c => `
+                    <button
+                        class="catalog__filter${c.id === activeCategory ? ' catalog__filter--active' : ''}"
+                        data-category="${c.id}"
+                    >${c.label}</button>
+                `).join('')}
+            </div>
+
+            <div class="catalog__grid" id="catalog-grid">
+                ${renderGrid()}
+            </div>
         </div>
     </div>
 `;
-
-const renderGrid = () => {
-    const q = searchQuery.trim().toLowerCase();
-    const filtered = mockRecipes.filter(r => {
-        const catOk = activeCategory === 'all' || r.category === activeCategory;
-        const searchOk = !q || r.name.toLowerCase().includes(q) || r.desc.toLowerCase().includes(q);
-        return catOk && searchOk;
-    });
-
-    if (filtered.length === 0) {
-        return `<p class="catalog-empty">No recipes found</p>`;
-    }
-    return filtered.map(renderCard).join('');
-};
-
-const CatalogPage = () => {
-    return `
-    <nav class="tab-nav">
-        <button class="tab" data-link="/">Home</button>
-        <button class="tab" data-link="/chat">AI Chat</button>
-        <button class="tab active" data-link="/catalog">Catalog</button>
-        <button class="tab" data-link="/preferences">Preferences</button>
-    </nav>
-
-    <div class="screen catalog-screen">
-        <input
-            type="text"
-            class="catalog-search"
-            id="catalog-search"
-            placeholder="Search recipes..."
-            value="${searchQuery}"
-        >
-
-        <div class="catalog-filters" id="catalog-filters">
-            ${categories.map(c => `
-                <button
-                    class="catalog-filter ${c.id === activeCategory ? 'active' : ''}"
-                    data-category="${c.id}"
-                >${c.label}</button>
-            `).join('')}
-        </div>
-
-        <div class="catalog-grid" id="catalog-grid">
-            ${renderGrid()}
-        </div>
-    </div>
-    `;
-};
 
 export const mount = () => {
     const searchInput = document.getElementById('catalog-search');
@@ -96,8 +84,8 @@ export const mount = () => {
         const btn = e.target.closest('[data-category]');
         if (!btn) return;
         activeCategory = btn.dataset.category;
-        filtersEl.querySelectorAll('.catalog-filter').forEach(b => {
-            b.classList.toggle('active', b.dataset.category === activeCategory);
+        filtersEl.querySelectorAll('.catalog__filter').forEach(b => {
+            b.classList.toggle('catalog__filter--active', b.dataset.category === activeCategory);
         });
         gridEl.innerHTML = renderGrid();
     });
