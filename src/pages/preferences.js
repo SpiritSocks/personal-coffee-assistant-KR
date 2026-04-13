@@ -21,20 +21,20 @@ const savePrefs = (prefs) => {
 
 let prefs = loadPrefs();
 
-const PreferencesPage = () => {
+const НастройкиPage = () => {
     prefs = loadPrefs();
     return `
     <nav class="tab-nav">
-        <button class="tab-nav__tab" data-link="/">Home</button>
-        <button class="tab-nav__tab" data-link="/chat">AI Chat</button>
-        <button class="tab-nav__tab" data-link="/catalog">Catalog</button>
-        <button class="tab-nav__tab tab-nav__tab--active" data-link="/preferences">Preferences</button>
+        <button class="tab-nav__tab" data-link="/">Главная</button>
+        <button class="tab-nav__tab" data-link="/chat">ИИ Чат</button>
+        <button class="tab-nav__tab" data-link="/catalog">Каталог</button>
+        <button class="tab-nav__tab tab-nav__tab--active" data-link="/preferences">Настройки</button>
     </nav>
 
     <div class="screen screen--preferences">
         <div class="prefs">
             <div class="prefs__card">
-                <h2 class="prefs__title">Coffee strength</h2>
+                <h2 class="prefs__title">Крепость кофе</h2>
                 <input
                     type="range"
                     min="1"
@@ -45,15 +45,15 @@ const PreferencesPage = () => {
                     id="pref-strength"
                 >
                 <div class="prefs__slider-labels">
-                    <span>Mild</span>
-                    <span>Strong</span>
+                    <span>Мягкий</span>
+                    <span>Крепкий</span>
                 </div>
             </div>
 
             <div class="prefs__card">
-                <h2 class="prefs__title">Add-ons</h2>
+                <h2 class="prefs__title">Добавки</h2>
                 <div class="prefs__row">
-                    <span class="prefs__label">With milk</span>
+                    <span class="prefs__label">С молоком</span>
                     <label class="toggle">
                         <input type="checkbox" class="toggle__input" id="pref-milk" ${prefs.milk ? 'checked' : ''}>
                         <span class="toggle__track"><span class="toggle__thumb"></span></span>
@@ -61,7 +61,7 @@ const PreferencesPage = () => {
                 </div>
                 <div class="prefs__divider"></div>
                 <div class="prefs__row">
-                    <span class="prefs__label">With sugar</span>
+                    <span class="prefs__label">С сахаром</span>
                     <label class="toggle">
                         <input type="checkbox" class="toggle__input" id="pref-sugar" ${prefs.sugar ? 'checked' : ''}>
                         <span class="toggle__track"><span class="toggle__thumb"></span></span>
@@ -69,7 +69,7 @@ const PreferencesPage = () => {
                 </div>
             </div>
 
-            <button class="prefs__save" id="pref-save">Save &amp; regenerate AI recommendation</button>
+            <button class="prefs__save" id="pref-save">Сохранить настройки</button>
         </div>
     </div>
     `;
@@ -96,7 +96,7 @@ export const mount = () => {
     saveBtn.addEventListener('click', () => {
         savePrefs(prefs);
         const original = saveBtn.textContent;
-        saveBtn.textContent = 'Saved ✓';
+        saveBtn.textContent = 'Сохранено ✓';
         saveBtn.classList.add('prefs__save--saved');
         setTimeout(() => {
             saveBtn.textContent = original;
@@ -105,4 +105,4 @@ export const mount = () => {
     });
 };
 
-export default PreferencesPage;
+export default НастройкиPage;
