@@ -1,5 +1,4 @@
-import { GROQ_API_KEY } from "../../config.js";
-const API_KEY = GROQ_API_KEY;
+const API_KEY = "GROQ_KEY_REMOVED";
 const MODEL = "llama-3.1-8b-instant";
 const API_URL = "https://api.groq.com/openai/v1/chat/completions";
 
