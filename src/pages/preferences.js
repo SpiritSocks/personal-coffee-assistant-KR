@@ -1,29 +1,29 @@
-const STORAGE_KEY = 'coffee-prefs';
+const STORAGE_KEY = "coffee-prefs";
 
 const defaultPrefs = {
-    strength: 3,  // 1..5
-    milk: true,
-    sugar: false,
+  strength: 3, // 1..5
+  milk: true,
+  sugar: false,
 };
 
 const loadPrefs = () => {
-    try {
-        const raw = localStorage.getItem(STORAGE_KEY);
-        return raw ? { ...defaultPrefs, ...JSON.parse(raw) } : { ...defaultPrefs };
-    } catch {
-        return { ...defaultPrefs };
-    }
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    return raw ? { ...defaultPrefs, ...JSON.parse(raw) } : { ...defaultPrefs };
+  } catch {
+    return { ...defaultPrefs };
+  }
 };
 
 const savePrefs = (prefs) => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(prefs));
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(prefs));
 };
 
 let prefs = loadPrefs();
 
 const НастройкиPage = () => {
-    prefs = loadPrefs();
-    return `
+  prefs = loadPrefs();
+  return `
     <nav class="tab-nav">
         <button class="tab-nav__tab" data-link="/">Главная</button>
         <button class="tab-nav__tab" data-link="/chat">ИИ Чат</button>
@@ -55,7 +55,7 @@ const НастройкиPage = () => {
                 <div class="prefs__row">
                     <span class="prefs__label">С молоком</span>
                     <label class="toggle">
-                        <input type="checkbox" class="toggle__input" id="pref-milk" ${prefs.milk ? 'checked' : ''}>
+                        <input type="checkbox" class="toggle__input" id="pref-milk" ${prefs.milk ? "checked" : ""}>
                         <span class="toggle__track"><span class="toggle__thumb"></span></span>
                     </label>
                 </div>
@@ -63,7 +63,7 @@ const НастройкиPage = () => {
                 <div class="prefs__row">
                     <span class="prefs__label">С сахаром</span>
                     <label class="toggle">
-                        <input type="checkbox" class="toggle__input" id="pref-sugar" ${prefs.sugar ? 'checked' : ''}>
+                        <input type="checkbox" class="toggle__input" id="pref-sugar" ${prefs.sugar ? "checked" : ""}>
                         <span class="toggle__track"><span class="toggle__thumb"></span></span>
                     </label>
                 </div>
@@ -76,33 +76,33 @@ const НастройкиPage = () => {
 };
 
 export const mount = () => {
-    const strengthEl = document.getElementById('pref-strength');
-    const milkEl = document.getElementById('pref-milk');
-    const sugarEl = document.getElementById('pref-sugar');
-    const saveBtn = document.getElementById('pref-save');
+  const strengthEl = document.getElementById("pref-strength");
+  const milkEl = document.getElementById("pref-milk");
+  const sugarEl = document.getElementById("pref-sugar");
+  const saveBtn = document.getElementById("pref-save");
 
-    if (!strengthEl || !milkEl || !sugarEl || !saveBtn) return;
+  if (!strengthEl || !milkEl || !sugarEl || !saveBtn) return;
 
-    strengthEl.addEventListener('input', (e) => {
-        prefs.strength = Number(e.target.value);
-    });
-    milkEl.addEventListener('change', (e) => {
-        prefs.milk = e.target.checked;
-    });
-    sugarEl.addEventListener('change', (e) => {
-        prefs.sugar = e.target.checked;
-    });
+  strengthEl.addEventListener("input", (e) => {
+    prefs.strength = Number(e.target.value);
+  });
+  milkEl.addEventListener("change", (e) => {
+    prefs.milk = e.target.checked;
+  });
+  sugarEl.addEventListener("change", (e) => {
+    prefs.sugar = e.target.checked;
+  });
 
-    saveBtn.addEventListener('click', () => {
-        savePrefs(prefs);
-        const original = saveBtn.textContent;
-        saveBtn.textContent = 'Сохранено ✓';
-        saveBtn.classList.add('prefs__save--saved');
-        setTimeout(() => {
-            saveBtn.textContent = original;
-            saveBtn.classList.remove('prefs__save--saved');
-        }, 1500);
-    });
+  saveBtn.addEventListener("click", () => {
+    savePrefs(prefs);
+    const original = saveBtn.textContent;
+    saveBtn.textContent = "Сохранено ✓";
+    saveBtn.classList.add("prefs__save--saved");
+    setTimeout(() => {
+      saveBtn.textContent = original;
+      saveBtn.classList.remove("prefs__save--saved");
+    }, 1500);
+  });
 };
 
 export default НастройкиPage;

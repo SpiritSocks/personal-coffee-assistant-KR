@@ -1,25 +1,25 @@
-import { getRecommended } from '../data/recipes.js';
+import { getRecommended } from "../data/recipes.js";
 
-const STORAGE_KEY = 'coffee-prefs';
-const NAME_KEY    = 'coffee-user-name';
+const STORAGE_KEY = "coffee-prefs";
+const NAME_KEY = "coffee-user-name";
 
 const defaultPrefs = { strength: 3, milk: true, sugar: false };
 
 const loadPrefs = () => {
-    try {
-        const raw = localStorage.getItem(STORAGE_KEY);
-        return raw ? { ...defaultPrefs, ...JSON.parse(raw) } : { ...defaultPrefs };
-    } catch {
-        return { ...defaultPrefs };
-    }
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    return raw ? { ...defaultPrefs, ...JSON.parse(raw) } : { ...defaultPrefs };
+  } catch {
+    return { ...defaultPrefs };
+  }
 };
 
 const HomePage = () => {
-    const prefs = loadPrefs();
-    const recommended = getRecommended(prefs);
-    const name = localStorage.getItem(NAME_KEY) || 'друг';
+  const prefs = loadPrefs();
+  const recommended = getRecommended(prefs);
+  const name = localStorage.getItem(NAME_KEY) || "друг";
 
-    return `
+  return `
     <nav class="tab-nav">
         <button class="tab-nav__tab tab-nav__tab--active" data-link="/">Главная</button>
         <button class="tab-nav__tab" data-link="/chat">ИИ Чат</button>
@@ -39,7 +39,7 @@ const HomePage = () => {
         <section class="section">
             <h2 class="section__label">РЕКОМЕНДУЕМ ВАМ</h2>
             <div class="rec-list">
-                ${recommended.map(r => r.renderRecCard()).join('')}
+                ${recommended.map((r) => r.renderRecCard()).join("")}
             </div>
         </section>
 

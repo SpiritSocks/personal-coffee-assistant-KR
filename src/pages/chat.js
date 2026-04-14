@@ -1,14 +1,14 @@
-import { AIService } from '../services/ai.js';
+import { AIService } from "../services/ai.js";
 
-const STORAGE_KEY = 'coffee-prefs';
+const STORAGE_KEY = "coffee-prefs";
 
 const loadPrefs = () => {
-    try {
-        const raw = localStorage.getItem(STORAGE_KEY);
-        return raw ? JSON.parse(raw) : null;
-    } catch {
-        return null;
-    }
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch {
+    return null;
+  }
 };
 
 const ChatPage = () => `
@@ -52,72 +52,76 @@ const ChatPage = () => `
 `;
 
 function _now() {
-    return new Date().toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
+  return new Date().toLocaleTimeString("ru-RU", {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
 }
 
 function appendMessage(container, text, role) {
-    const div = document.createElement('div');
-    div.className = `msg msg--${role}`;
-    div.innerHTML = `<p class="msg__text">${_escape(text)}</p><span class="msg__time">${_now()}</span>`;
-    container.appendChild(div);
-    container.scrollTop = container.scrollHeight;
+  const div = document.createElement("div");
+  div.className = `msg msg--${role}`;
+  div.innerHTML = `<p class="msg__text">${_escape(text)}</p><span class="msg__time">${_now()}</span>`;
+  container.appendChild(div);
+  container.scrollTop = container.scrollHeight;
 }
 
 function showTyping(container) {
-    const div = document.createElement('div');
-    div.className = 'msg msg--bot msg--typing';
-    div.innerHTML = '<span class="msg__dot"></span><span class="msg__dot"></span><span class="msg__dot"></span>';
-    container.appendChild(div);
-    container.scrollTop = container.scrollHeight;
-    return div;
+  const div = document.createElement("div");
+  div.className = "msg msg--bot msg--typing";
+  div.innerHTML =
+    '<span class="msg__dot"></span><span class="msg__dot"></span><span class="msg__dot"></span>';
+  container.appendChild(div);
+  container.scrollTop = container.scrollHeight;
+  return div;
 }
 
 function _escape(str) {
-    return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 }
 
 export const mount = () => {
-    const form = document.getElementById('chat-form');
-    const input = document.getElementById('chat-input');
-    const messages = document.getElementById('chat-messages');
+  const form = document.getElementById("chat-form");
+  const input = document.getElementById("chat-input");
+  const messages = document.getElementById("chat-messages");
 
-    if (!form || !input || !messages) return;
+  if (!form || !input || !messages) return;
 
-    const ai = new AIService();
-    const prefs = loadPrefs();
-    if (prefs) ai.setPrefsContext(prefs);
+  const ai = new AIService();
+  const prefs = loadPrefs();
+  if (prefs) ai.setPrefsContext(prefs);
 
-    let busy = false;
+  let busy = false;
 
-    async function handleSend(text) {
-        text = text.trim();
-        if (!text || busy) return;
-        busy = true;
+  async function handleSend(text) {
+    text = text.trim();
+    if (!text || busy) return;
+    busy = true;
 
-        appendMessage(messages, text, 'user');
-        input.value = '';
+    appendMessage(messages, text, "user");
+    input.value = "";
 
-        const typing = showTyping(messages);
-        try {
-            const reply = await ai.send(text);
-            typing.remove();
-            appendMessage(messages, reply, 'bot');
-        } catch {
-            typing.remove();
-            appendMessage(messages, 'Ошибка соединения. Попробуйте ещё раз.', 'bot');
-        } finally {
-            busy = false;
-        }
+    const typing = showTyping(messages);
+    try {
+      const reply = await ai.send(text);
+      typing.remove();
+      appendMessage(messages, reply, "bot");
+    } catch {
+      typing.remove();
+      appendMessage(messages, "Ошибка соединения. Попробуйте ещё раз.", "bot");
+    } finally {
+      busy = false;
     }
+  }
 
-    form.addEventListener('submit', (e) => {
-        e.preventDefault();
-        handleSend(input.value);
-    });
+  form.addEventListener("submit", (e) => {
+    e.preventDefault();
+    handleSend(input.value);
+  });
 
-    document.querySelectorAll('.suggestions__chip').forEach(chip => {
-        chip.addEventListener('click', () => handleSend(chip.textContent));
-    });
+  document.querySelectorAll(".suggestions__chip").forEach((chip) => {
+    chip.addEventListener("click", () => handleSend(chip.textContent));
+  });
 };
 
 export default ChatPage;
