@@ -1,7 +1,6 @@
-import { GROQ_API_KEY } from "../../config.js";
-const API_KEY = GROQ_API_KEY;
 const MODEL = "llama-3.1-8b-instant";
 const API_URL = "https://api.groq.com/openai/v1/chat/completions";
+export const GROQ_KEY_STORAGE = "groq-api-key";
 
 const SYSTEM_PROMPT = `Ты — дружелюбный кофейный помощник. Помогаешь пользователю выбрать кофе, рассказываешь рецепты и отвечаешь на вопросы о кофе.
 Отвечай коротко и по делу (2–4 предложения). Отвечай на том же языке, на котором пишет пользователь.`;
@@ -20,6 +19,14 @@ export class AIService {
     this.history = [{ role: "system", content: SYSTEM_PROMPT }];
   }
 
+  getApiKey() {
+    try {
+      return localStorage.getItem(GROQ_KEY_STORAGE)?.trim() || "";
+    } catch {
+      return "";
+    }
+  }
+
   setPrefsContext(prefs) {
     const strengthLabel =
       ["", "мягкий", "лёгкий", "средний", "крепкий", "очень крепкий"][
@@ -36,6 +43,13 @@ export class AIService {
   }
 
   async send(userText) {
+    const apiKey = this.getApiKey();
+    if (!apiKey) {
+      throw new AIServiceError("Groq API key is missing", {
+        code: "missing_api_key",
+      });
+    }
+
     this.history.push({ role: "user", content: userText });
 
     let response;
@@ -44,7 +58,7 @@ export class AIService {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${API_KEY}`,
+          Authorization: `Bearer ${apiKey}`,
         },
         body: JSON.stringify({ model: MODEL, messages: this.history }),
       });

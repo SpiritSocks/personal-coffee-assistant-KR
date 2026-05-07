@@ -1,4 +1,8 @@
-import { AIService, AIServiceError } from "../services/ai.js";
+import {
+  AIService,
+  AIServiceError,
+  GROQ_KEY_STORAGE,
+} from "../services/ai.js";
 
 const STORAGE_KEY = "coffee-prefs";
 
@@ -25,6 +29,12 @@ const ChatPage = () => `
                 <h2 class="chat__header-title">Кофейный помощник</h2>
                 <p class="chat__header-sub">На базе Llama 3.1</p>
             </header>
+
+            <form class="chat__key" id="chat-key-form">
+                <input type="password" class="chat__key-field" id="chat-key-input"
+                       placeholder="Groq API key" autocomplete="off">
+                <button type="submit" class="chat__key-save">Сохранить ключ</button>
+            </form>
 
             <div class="chat__messages" id="chat-messages">
                 <div class="msg msg--bot">
@@ -82,8 +92,12 @@ function _escape(str) {
 
 function getErrorMessage(error) {
   if (error instanceof AIServiceError) {
+    if (error.code === "missing_api_key") {
+      return "Добавьте Groq API key в поле над чатом, чтобы включить ИИ.";
+    }
+
     if (error.status === 401 || error.code === "invalid_api_key") {
-      return "Ключ Groq недействителен. Создайте новый ключ в console.groq.com и обновите config.js.";
+      return "Ключ Groq недействителен. Создайте новый ключ в console.groq.com и сохраните его над чатом.";
     }
 
     if (error.status === 429) {
@@ -98,6 +112,8 @@ export const mount = () => {
   const form = document.getElementById("chat-form");
   const input = document.getElementById("chat-input");
   const messages = document.getElementById("chat-messages");
+  const keyForm = document.getElementById("chat-key-form");
+  const keyInput = document.getElementById("chat-key-input");
 
   if (!form || !input || !messages) return;
 
@@ -106,6 +122,24 @@ export const mount = () => {
   if (prefs) ai.setPrefsContext(prefs);
 
   let busy = false;
+
+  try {
+    if (keyInput && localStorage.getItem(GROQ_KEY_STORAGE)) {
+      keyInput.placeholder = "Groq API key сохранён";
+    }
+  } catch {
+    /* localStorage может быть недоступен в приватном режиме */
+  }
+
+  keyForm?.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const key = keyInput?.value.trim();
+    if (!key) return;
+    localStorage.setItem(GROQ_KEY_STORAGE, key);
+    keyInput.value = "";
+    keyInput.placeholder = "Groq API key сохранён";
+    appendMessage(messages, "Ключ сохранён. Теперь можно задать вопрос.", "bot");
+  });
 
   async function handleSend(text) {
     text = text.trim();
