@@ -6,6 +6,15 @@ const API_URL = "https://api.groq.com/openai/v1/chat/completions";
 const SYSTEM_PROMPT = `Ты — дружелюбный кофейный помощник. Помогаешь пользователю выбрать кофе, рассказываешь рецепты и отвечаешь на вопросы о кофе.
 Отвечай коротко и по делу (2–4 предложения). Отвечай на том же языке, на котором пишет пользователь.`;
 
+export class AIServiceError extends Error {
+  constructor(message, { status, code } = {}) {
+    super(message);
+    this.name = "AIServiceError";
+    this.status = status;
+    this.code = code;
+  }
+}
+
 export class AIService {
   constructor() {
     this.history = [{ role: "system", content: SYSTEM_PROMPT }];
@@ -29,20 +38,31 @@ export class AIService {
   async send(userText) {
     this.history.push({ role: "user", content: userText });
 
-    const response = await fetch(API_URL, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${API_KEY}`,
-      },
-      body: JSON.stringify({ model: MODEL, messages: this.history }),
-    });
+    let response;
+    try {
+      response = await fetch(API_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${API_KEY}`,
+        },
+        body: JSON.stringify({ model: MODEL, messages: this.history }),
+      });
+    } catch (error) {
+      this.history.pop();
+      throw new AIServiceError(error.message || "Network error", {
+        code: "network_error",
+      });
+    }
 
     if (!response.ok) {
       this.history.pop();
       const err = await response.json().catch(() => ({}));
       console.error("Groq error:", response.status, err);
-      throw new Error(`API_ERROR_${response.status}`);
+      throw new AIServiceError(err.error?.message || "Groq API error", {
+        status: response.status,
+        code: err.error?.code,
+      });
     }
 
     const data = await response.json();

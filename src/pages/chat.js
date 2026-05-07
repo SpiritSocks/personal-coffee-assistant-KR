@@ -1,4 +1,4 @@
-import { AIService } from "../services/ai.js";
+import { AIService, AIServiceError } from "../services/ai.js";
 
 const STORAGE_KEY = "coffee-prefs";
 
@@ -80,6 +80,20 @@ function _escape(str) {
   return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 }
 
+function getErrorMessage(error) {
+  if (error instanceof AIServiceError) {
+    if (error.status === 401 || error.code === "invalid_api_key") {
+      return "Ключ Groq недействителен. Создайте новый ключ в console.groq.com и обновите config.js.";
+    }
+
+    if (error.status === 429) {
+      return "Лимит Groq временно исчерпан. Попробуйте ещё раз чуть позже.";
+    }
+  }
+
+  return "Не удалось связаться с ИИ. Проверьте интернет и попробуйте ещё раз.";
+}
+
 export const mount = () => {
   const form = document.getElementById("chat-form");
   const input = document.getElementById("chat-input");
@@ -106,9 +120,9 @@ export const mount = () => {
       const reply = await ai.send(text);
       typing.remove();
       appendMessage(messages, reply, "bot");
-    } catch {
+    } catch (error) {
       typing.remove();
-      appendMessage(messages, "Ошибка соединения. Попробуйте ещё раз.", "bot");
+      appendMessage(messages, getErrorMessage(error), "bot");
     } finally {
       busy = false;
     }
