@@ -83,8 +83,8 @@ var e=Object.defineProperty,t=(t,n)=>{let r={};for(var i in t)e(r,i,{get:t[i],en
             </div>
         </section>
     </div>
-    `},f=`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`,p=`llama-3.1-8b-instant`,m=`https://api.groq.com/openai/v1/chat/completions`,h=`Ты — дружелюбный кофейный помощник. Помогаешь пользователю выбрать кофе, рассказываешь рецепты и отвечаешь на вопросы о кофе.
-Отвечай коротко и по делу (2–4 предложения). Отвечай на том же языке, на котором пишет пользователь.`,ee=class{constructor(){this.history=[{role:`system`,content:h}]}setPrefsContext(e){let t=[``,`мягкий`,`лёгкий`,`средний`,`крепкий`,`очень крепкий`][e.strength]??`средний`,n=[e.milk&&`с молоком`,e.sugar&&`с сахаром`].filter(Boolean).join(`, `)||`без добавок`;this.history[0]={role:`system`,content:`${h}\nПредпочтения пользователя: ${t} кофе, ${n}.`}}async send(e){this.history.push({role:`user`,content:e});let t=await fetch(m,{method:`POST`,headers:{"Content-Type":`application/json`,Authorization:`Bearer ${f}`},body:JSON.stringify({model:p,messages:this.history})});if(!t.ok){this.history.pop();let e=await t.json().catch(()=>({}));throw console.error(`Groq error:`,t.status,e),Error(`API_ERROR_${t.status}`)}let n=(await t.json()).choices[0].message.content;return this.history.push({role:`assistant`,content:n}),n}reset(){this.history=[this.history[0]]}},g=t({default:()=>y,mount:()=>w}),_=`coffee-prefs`,v=()=>{try{let e=localStorage.getItem(_);return e?JSON.parse(e):null}catch{return null}},y=()=>`
+    `},f=`llama-3.1-8b-instant`,p=`https://api.groq.com/openai/v1/chat/completions`,ee=`groq-api-key`,m=`Ты — дружелюбный кофейный помощник. Помогаешь пользователю выбрать кофе, рассказываешь рецепты и отвечаешь на вопросы о кофе.
+Отвечай коротко и по делу (2–4 предложения). Отвечай на том же языке, на котором пишет пользователь.`,h=class extends Error{constructor(e,{status:t,code:n}={}){super(e),this.name=`AIServiceError`,this.status=t,this.code=n}},g=class{constructor(){this.history=[{role:`system`,content:m}]}getApiKey(){try{return localStorage.getItem(`groq-api-key`)?.trim()||``}catch{return``}}setPrefsContext(e){let t=[``,`мягкий`,`лёгкий`,`средний`,`крепкий`,`очень крепкий`][e.strength]??`средний`,n=[e.milk&&`с молоком`,e.sugar&&`с сахаром`].filter(Boolean).join(`, `)||`без добавок`;this.history[0]={role:`system`,content:`${m}\nПредпочтения пользователя: ${t} кофе, ${n}.`}}async send(e){let t=this.getApiKey();if(!t)throw new h(`Groq API key is missing`,{code:`missing_api_key`});this.history.push({role:`user`,content:e});let n;try{n=await fetch(p,{method:`POST`,headers:{"Content-Type":`application/json`,Authorization:`Bearer ${t}`},body:JSON.stringify({model:f,messages:this.history})})}catch(e){throw this.history.pop(),new h(e.message||`Network error`,{code:`network_error`})}if(!n.ok){this.history.pop();let e=await n.json().catch(()=>({}));throw console.error(`Groq error:`,n.status,e),new h(e.error?.message||`Groq API error`,{status:n.status,code:e.error?.code})}let r=(await n.json()).choices[0].message.content;return this.history.push({role:`assistant`,content:r}),r}reset(){this.history=[this.history[0]]}},_=t({default:()=>b,mount:()=>E}),v=`coffee-prefs`,y=()=>{try{let e=localStorage.getItem(v);return e?JSON.parse(e):null}catch{return null}},b=()=>`
     <nav class="tab-nav">
         <button class="tab-nav__tab" data-link="/">Главная</button>
         <button class="tab-nav__tab tab-nav__tab--active" data-link="/chat">ИИ Чат</button>
@@ -99,10 +99,16 @@ var e=Object.defineProperty,t=(t,n)=>{let r={};for(var i in t)e(r,i,{get:t[i],en
                 <p class="chat__header-sub">На базе Llama 3.1</p>
             </header>
 
+            <form class="chat__key" id="chat-key-form">
+                <input type="password" class="chat__key-field" id="chat-key-input"
+                       placeholder="Groq API key" autocomplete="off">
+                <button type="submit" class="chat__key-save">Сохранить ключ</button>
+            </form>
+
             <div class="chat__messages" id="chat-messages">
                 <div class="msg msg--bot">
                     <p class="msg__text">Привет! Я ваш кофейный помощник. Чем могу помочь?</p>
-                    <span class="msg__time">${b()}</span>
+                    <span class="msg__time">${x()}</span>
                 </div>
             </div>
 
@@ -122,11 +128,11 @@ var e=Object.defineProperty,t=(t,n)=>{let r={};for(var i in t)e(r,i,{get:t[i],en
             </div>
         </section>
     </div>
-`;function b(){return new Date().toLocaleTimeString(`ru-RU`,{hour:`2-digit`,minute:`2-digit`})}function x(e,t,n){let r=document.createElement(`div`);r.className=`msg msg--${n}`,r.innerHTML=`<p class="msg__text">${C(t)}</p><span class="msg__time">${b()}</span>`,e.appendChild(r),e.scrollTop=e.scrollHeight}function S(e){let t=document.createElement(`div`);return t.className=`msg msg--bot msg--typing`,t.innerHTML=`<span class="msg__dot"></span><span class="msg__dot"></span><span class="msg__dot"></span>`,e.appendChild(t),e.scrollTop=e.scrollHeight,t}function C(e){return e.replace(/&/g,`&amp;`).replace(/</g,`&lt;`).replace(/>/g,`&gt;`)}var w=()=>{let e=document.getElementById(`chat-form`),t=document.getElementById(`chat-input`),n=document.getElementById(`chat-messages`);if(!e||!t||!n)return;let r=new ee,i=v();i&&r.setPrefsContext(i);let a=!1;async function o(e){if(e=e.trim(),!e||a)return;a=!0,x(n,e,`user`),t.value=``;let i=S(n);try{let t=await r.send(e);i.remove(),x(n,t,`bot`)}catch{i.remove(),x(n,`Ошибка соединения. Попробуйте ещё раз.`,`bot`)}finally{a=!1}}e.addEventListener(`submit`,e=>{e.preventDefault(),o(t.value)}),document.querySelectorAll(`.suggestions__chip`).forEach(e=>{e.addEventListener(`click`,()=>o(e.textContent))})},T=t({default:()=>I,mount:()=>B}),E=`https://www.thecocktaildb.com/api/json/v1/1`,D=6;function te(e){let t=[];for(let n=1;n<=15;n++){let r=e[`strIngredient${n}`],i=e[`strMeasure${n}`];r&&r.trim()&&t.push(i?`${i.trim()} ${r.trim()}`:r.trim())}return t}function O(e){return e?e.split(/(?:\r?\n|(?<=\.)\s+(?=[A-ZА-Я]))/).map(e=>e.trim()).filter(e=>e.length>10):[]}var k=[`☕`,`☕`,`☕`,`☕`,`☕`,`☕`,`🧋`,`🧊`,`🧋`,`🧊`],A=[{id:`all`,label:`Все`},{id:`espresso`,label:`Эспрессо`},{id:`milk`,label:`С молоком`},{id:`cold`,label:`Холодные`}],j=`all`,M=``,N=[],P=!1,F=()=>{let e=N.filter(e=>e.matchesCategory(j)&&e.matchesQuery(M));if(e.length===0)return`<p class="catalog__empty">Рецепты не найдены</p>`;let t=P?e:e.slice(0,D),n=e.length>D;return t.map(e=>e.renderCatalogCard()).join(``)+(n?`
+`;function x(){return new Date().toLocaleTimeString(`ru-RU`,{hour:`2-digit`,minute:`2-digit`})}function S(e,t,n){let r=document.createElement(`div`);r.className=`msg msg--${n}`,r.innerHTML=`<p class="msg__text">${w(t)}</p><span class="msg__time">${x()}</span>`,e.appendChild(r),e.scrollTop=e.scrollHeight}function C(e){let t=document.createElement(`div`);return t.className=`msg msg--bot msg--typing`,t.innerHTML=`<span class="msg__dot"></span><span class="msg__dot"></span><span class="msg__dot"></span>`,e.appendChild(t),e.scrollTop=e.scrollHeight,t}function w(e){return e.replace(/&/g,`&amp;`).replace(/</g,`&lt;`).replace(/>/g,`&gt;`)}function T(e){if(e instanceof h){if(e.code===`missing_api_key`)return`Добавьте Groq API key в поле над чатом, чтобы включить ИИ.`;if(e.status===401||e.code===`invalid_api_key`)return`Ключ Groq недействителен. Создайте новый ключ в console.groq.com и сохраните его над чатом.`;if(e.status===429)return`Лимит Groq временно исчерпан. Попробуйте ещё раз чуть позже.`}return`Не удалось связаться с ИИ. Проверьте интернет и попробуйте ещё раз.`}var E=()=>{let e=document.getElementById(`chat-form`),t=document.getElementById(`chat-input`),n=document.getElementById(`chat-messages`),r=document.getElementById(`chat-key-form`),i=document.getElementById(`chat-key-input`);if(!e||!t||!n)return;let a=new g,o=y();o&&a.setPrefsContext(o);let s=!1;try{i&&localStorage.getItem(`groq-api-key`)&&(i.placeholder=`Groq API key сохранён`)}catch{}r?.addEventListener(`submit`,e=>{e.preventDefault();let t=i?.value.trim();t&&(localStorage.setItem(ee,t),i.value=``,i.placeholder=`Groq API key сохранён`,S(n,`Ключ сохранён. Теперь можно задать вопрос.`,`bot`))});async function c(e){if(e=e.trim(),!e||s)return;s=!0,S(n,e,`user`),t.value=``;let r=C(n);try{let t=await a.send(e);r.remove(),S(n,t,`bot`)}catch(e){r.remove(),S(n,T(e),`bot`)}finally{s=!1}}e.addEventListener(`submit`,e=>{e.preventDefault(),c(t.value)}),document.querySelectorAll(`.suggestions__chip`).forEach(e=>{e.addEventListener(`click`,()=>c(e.textContent))})},te=t({default:()=>R,mount:()=>H}),D=`https://www.thecocktaildb.com/api/json/v1/1`,O=6;function k(e){let t=[];for(let n=1;n<=15;n++){let r=e[`strIngredient${n}`],i=e[`strMeasure${n}`];r&&r.trim()&&t.push(i?`${i.trim()} ${r.trim()}`:r.trim())}return t}function A(e){return e?e.split(/(?:\r?\n|(?<=\.)\s+(?=[A-ZА-Я]))/).map(e=>e.trim()).filter(e=>e.length>10):[]}var j=[`☕`,`☕`,`☕`,`☕`,`☕`,`☕`,`🧋`,`🧊`,`🧋`,`🧊`],M=[{id:`all`,label:`Все`},{id:`espresso`,label:`Эспрессо`},{id:`milk`,label:`С молоком`},{id:`cold`,label:`Холодные`}],N=`all`,P=``,F=[],I=!1,L=()=>{let e=F.filter(e=>e.matchesCategory(N)&&e.matchesQuery(P));if(e.length===0)return`<p class="catalog__empty">Рецепты не найдены</p>`;let t=I?e:e.slice(0,O),n=e.length>O;return t.map(e=>e.renderCatalogCard()).join(``)+(n?`
         <button class="catalog__show-more" id="catalog-show-more">
-            ${P?`Свернуть`:`Показать ещё ${e.length-D}`}
-            <span class="catalog__show-more-arrow${P?` catalog__show-more-arrow--up`:``}">▼</span>
-        </button>`:``)},I=()=>`
+            ${I?`Свернуть`:`Показать ещё ${e.length-O}`}
+            <span class="catalog__show-more-arrow${I?` catalog__show-more-arrow--up`:``}">▼</span>
+        </button>`:``)},R=()=>`
     <nav class="tab-nav">
         <button class="tab-nav__tab" data-link="/">Главная</button>
         <button class="tab-nav__tab" data-link="/chat">ИИ Чат</button>
@@ -137,23 +143,23 @@ var e=Object.defineProperty,t=(t,n)=>{let r={};for(var i in t)e(r,i,{get:t[i],en
     <div class="screen screen--catalog">
         <div class="catalog">
             <input type="text" class="catalog__search" id="catalog-search"
-                   placeholder="Поиск рецептов..." value="${M}">
+                   placeholder="Поиск рецептов..." value="${P}">
             <div class="catalog__filters" id="catalog-filters">
-                ${A.map(e=>`
-                    <button class="catalog__filter${e.id===j?` catalog__filter--active`:``}"
+                ${M.map(e=>`
+                    <button class="catalog__filter${e.id===N?` catalog__filter--active`:``}"
                             data-category="${e.id}">${e.label}</button>
                 `).join(``)}
             </div>
             <div class="catalog__grid" id="catalog-grid">
-                ${r.slice(0,D).map(e=>e.renderCatalogCard()).join(``)}
+                ${r.slice(0,O).map(e=>e.renderCatalogCard()).join(``)}
                 <button class="catalog__show-more" id="catalog-show-more">
-                    Показать ещё ${r.length-D}
+                    Показать ещё ${r.length-O}
                     <span class="catalog__show-more-arrow">▼</span>
                 </button>
             </div>
         </div>
     </div>
-`;async function L(){N=r;try{let e=new AbortController,t=setTimeout(()=>e.abort(),5e3),i=await fetch(`${E}/filter.php?c=Coffee%20%2F%20Tea`,{signal:e.signal});clearTimeout(t);let a=((await i.json()).drinks||[]).slice(0,6);if(!a.length)return;let o=(await Promise.all(a.map(e=>fetch(`${E}/lookup.php?i=${e.idDrink}`).then(e=>e.json()).then(e=>e.drinks?.[0]).catch(()=>null)))).filter(Boolean).map((e,t)=>n.fromJSON({id:`api-${e.idDrink}`,name:e.strDrink,desc:(e.strInstructions??``).slice(0,65).trim()+`…`,time:`5 мин`,icon:k[t%k.length],category:`espresso`,ingredients:te(e),steps:O(e.strInstructions),fullDesc:e.strInstructions??``,image:e.strDrinkThumb??null}));if(o.length){N=[...r,...o];let e=document.getElementById(`catalog-grid`);e&&(e.innerHTML=F())}}catch{}}function R(e){let t=N.find(t=>t.id==e);if(!t)return;document.body.insertAdjacentHTML(`beforeend`,t.renderModal());let n=document.getElementById(`recipe-modal`);document.getElementById(`recipe-modal-close`).addEventListener(`click`,z),n.addEventListener(`click`,e=>{e.target===n&&z()})}function z(){document.getElementById(`recipe-modal`)?.remove()}var B=async()=>{let e=document.getElementById(`catalog-search`),t=document.getElementById(`catalog-filters`),n=document.getElementById(`catalog-grid`);!e||!t||!n||(N=r,L(),e.addEventListener(`input`,e=>{M=e.target.value,P=!1,n.innerHTML=F()}),t.addEventListener(`click`,e=>{let r=e.target.closest(`[data-category]`);r&&(j=r.dataset.category,P=!1,t.querySelectorAll(`.catalog__filter`).forEach(e=>e.classList.toggle(`catalog__filter--active`,e.dataset.category===j)),n.innerHTML=F())}),n.addEventListener(`click`,e=>{if(e.target.closest(`#catalog-show-more`)){P=!P,n.innerHTML=F();return}let t=e.target.closest(`[data-id]`);t&&R(t.dataset.id)}))},V=t({default:()=>q,mount:()=>J}),H=`coffee-prefs`,U={strength:3,milk:!0,sugar:!1},W=()=>{try{let e=localStorage.getItem(H);return e?{...U,...JSON.parse(e)}:{...U}}catch{return{...U}}},G=e=>{localStorage.setItem(H,JSON.stringify(e))},K=W(),q=()=>(K=W(),`
+`;async function z(){F=r;try{let e=new AbortController,t=setTimeout(()=>e.abort(),5e3),i=await fetch(`${D}/filter.php?c=Coffee%20%2F%20Tea`,{signal:e.signal});clearTimeout(t);let a=((await i.json()).drinks||[]).slice(0,6);if(!a.length)return;let o=(await Promise.all(a.map(e=>fetch(`${D}/lookup.php?i=${e.idDrink}`).then(e=>e.json()).then(e=>e.drinks?.[0]).catch(()=>null)))).filter(Boolean).map((e,t)=>n.fromJSON({id:`api-${e.idDrink}`,name:e.strDrink,desc:(e.strInstructions??``).slice(0,65).trim()+`…`,time:`5 мин`,icon:j[t%j.length],category:`espresso`,ingredients:k(e),steps:A(e.strInstructions),fullDesc:e.strInstructions??``,image:e.strDrinkThumb??null}));if(o.length){F=[...r,...o];let e=document.getElementById(`catalog-grid`);e&&(e.innerHTML=L())}}catch{}}function B(e){let t=F.find(t=>t.id==e);if(!t)return;document.body.insertAdjacentHTML(`beforeend`,t.renderModal());let n=document.getElementById(`recipe-modal`);document.getElementById(`recipe-modal-close`).addEventListener(`click`,V),n.addEventListener(`click`,e=>{e.target===n&&V()})}function V(){document.getElementById(`recipe-modal`)?.remove()}var H=async()=>{let e=document.getElementById(`catalog-search`),t=document.getElementById(`catalog-filters`),n=document.getElementById(`catalog-grid`);!e||!t||!n||(F=r,z(),e.addEventListener(`input`,e=>{P=e.target.value,I=!1,n.innerHTML=L()}),t.addEventListener(`click`,e=>{let r=e.target.closest(`[data-category]`);r&&(N=r.dataset.category,I=!1,t.querySelectorAll(`.catalog__filter`).forEach(e=>e.classList.toggle(`catalog__filter--active`,e.dataset.category===N)),n.innerHTML=L())}),n.addEventListener(`click`,e=>{if(e.target.closest(`#catalog-show-more`)){I=!I,n.innerHTML=L();return}let t=e.target.closest(`[data-id]`);t&&B(t.dataset.id)}))},U=t({default:()=>Y,mount:()=>X}),W=`coffee-prefs`,G={strength:3,milk:!0,sugar:!1},K=()=>{try{let e=localStorage.getItem(W);return e?{...G,...JSON.parse(e)}:{...G}}catch{return{...G}}},q=e=>{localStorage.setItem(W,JSON.stringify(e))},J=K(),Y=()=>(J=K(),`
     <nav class="tab-nav">
         <button class="tab-nav__tab" data-link="/">Главная</button>
         <button class="tab-nav__tab" data-link="/chat">ИИ Чат</button>
@@ -170,7 +176,7 @@ var e=Object.defineProperty,t=(t,n)=>{let r={};for(var i in t)e(r,i,{get:t[i],en
                     min="1"
                     max="5"
                     step="1"
-                    value="${K.strength}"
+                    value="${J.strength}"
                     class="prefs__slider"
                     id="pref-strength"
                 >
@@ -185,7 +191,7 @@ var e=Object.defineProperty,t=(t,n)=>{let r={};for(var i in t)e(r,i,{get:t[i],en
                 <div class="prefs__row">
                     <span class="prefs__label">С молоком</span>
                     <label class="toggle">
-                        <input type="checkbox" class="toggle__input" id="pref-milk" ${K.milk?`checked`:``}>
+                        <input type="checkbox" class="toggle__input" id="pref-milk" ${J.milk?`checked`:``}>
                         <span class="toggle__track"><span class="toggle__thumb"></span></span>
                     </label>
                 </div>
@@ -193,7 +199,7 @@ var e=Object.defineProperty,t=(t,n)=>{let r={};for(var i in t)e(r,i,{get:t[i],en
                 <div class="prefs__row">
                     <span class="prefs__label">С сахаром</span>
                     <label class="toggle">
-                        <input type="checkbox" class="toggle__input" id="pref-sugar" ${K.sugar?`checked`:``}>
+                        <input type="checkbox" class="toggle__input" id="pref-sugar" ${J.sugar?`checked`:``}>
                         <span class="toggle__track"><span class="toggle__thumb"></span></span>
                     </label>
                 </div>
@@ -202,7 +208,7 @@ var e=Object.defineProperty,t=(t,n)=>{let r={};for(var i in t)e(r,i,{get:t[i],en
             <button class="prefs__save" id="pref-save">Сохранить настройки</button>
         </div>
     </div>
-    `),J=()=>{let e=document.getElementById(`pref-strength`),t=document.getElementById(`pref-milk`),n=document.getElementById(`pref-sugar`),r=document.getElementById(`pref-save`);!e||!t||!n||!r||(e.addEventListener(`input`,e=>{K.strength=Number(e.target.value)}),t.addEventListener(`change`,e=>{K.milk=e.target.checked}),n.addEventListener(`change`,e=>{K.sugar=e.target.checked}),r.addEventListener(`click`,()=>{G(K);let e=r.textContent;r.textContent=`Сохранено ✓`,r.classList.add(`prefs__save--saved`),setTimeout(()=>{r.textContent=e,r.classList.remove(`prefs__save--saved`)},1500)}))},Y={"/":o,"/chat":g,"/catalog":T,"/preferences":V};function X(){return window.location.hash.slice(1)||`/`}function Z(e){window.location.hash=e}function Q(){let e=X(),t=Y[e.split(`?`)[0]]??o;document.getElementById(`app`).innerHTML=t.default(e),ne(),typeof t.mount==`function`&&t.mount()}function ne(){document.querySelectorAll(`[data-link]`).forEach(e=>{e.addEventListener(`click`,t=>{t.preventDefault(),Z(e.dataset.link)})})}window.addEventListener(`hashchange`,Q);var $=`coffee-user-name`;function re(){return new Promise(e=>{let t=document.createElement(`div`);t.className=`name-popup__overlay`,t.innerHTML=`
+    `),X=()=>{let e=document.getElementById(`pref-strength`),t=document.getElementById(`pref-milk`),n=document.getElementById(`pref-sugar`),r=document.getElementById(`pref-save`);!e||!t||!n||!r||(e.addEventListener(`input`,e=>{J.strength=Number(e.target.value)}),t.addEventListener(`change`,e=>{J.milk=e.target.checked}),n.addEventListener(`change`,e=>{J.sugar=e.target.checked}),r.addEventListener(`click`,()=>{q(J);let e=r.textContent;r.textContent=`Сохранено ✓`,r.classList.add(`prefs__save--saved`),setTimeout(()=>{r.textContent=e,r.classList.remove(`prefs__save--saved`)},1500)}))},Z={"/":o,"/chat":_,"/catalog":te,"/preferences":U};function ne(){return window.location.hash.slice(1)||`/`}function re(e){window.location.hash=e}function Q(){let e=ne(),t=Z[e.split(`?`)[0]]??o;document.getElementById(`app`).innerHTML=t.default(e),ie(),typeof t.mount==`function`&&t.mount()}function ie(){document.querySelectorAll(`[data-link]`).forEach(e=>{e.addEventListener(`click`,t=>{t.preventDefault(),re(e.dataset.link)})})}window.addEventListener(`hashchange`,Q);var $=`coffee-user-name`;function ae(){return new Promise(e=>{let t=document.createElement(`div`);t.className=`name-popup__overlay`,t.innerHTML=`
             <div class="name-popup">
                 <div class="name-popup__icon">☕</div>
                 <h2 class="name-popup__title">Добро пожаловать!</h2>
@@ -211,4 +217,4 @@ var e=Object.defineProperty,t=(t,n)=>{let r={};for(var i in t)e(r,i,{get:t[i],en
                        placeholder="Введите имя..." maxlength="30" autocomplete="off">
                 <button class="name-popup__btn" id="name-confirm">Начать</button>
             </div>
-        `,document.body.appendChild(t);let n=t.querySelector(`#name-input`),r=t.querySelector(`#name-confirm`);n.focus();function i(){let r=n.value.trim();if(!r){n.focus();return}localStorage.setItem($,r),t.classList.add(`name-popup__overlay--out`),t.addEventListener(`animationend`,()=>{t.remove(),e()},{once:!0})}r.addEventListener(`click`,i),n.addEventListener(`keydown`,e=>{e.key===`Enter`&&i()})})}async function ie(){localStorage.getItem($)||await re(),Q()}ie();
+        `,document.body.appendChild(t);let n=t.querySelector(`#name-input`),r=t.querySelector(`#name-confirm`);n.focus();function i(){let r=n.value.trim();if(!r){n.focus();return}localStorage.setItem($,r),t.classList.add(`name-popup__overlay--out`),t.addEventListener(`animationend`,()=>{t.remove(),e()},{once:!0})}r.addEventListener(`click`,i),n.addEventListener(`keydown`,e=>{e.key===`Enter`&&i()})})}async function oe(){localStorage.getItem($)||await ae(),Q()}oe();
