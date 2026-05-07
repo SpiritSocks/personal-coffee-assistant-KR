@@ -1028,6 +1028,18 @@ body {
   margin-left: auto;
 }
 
+@media (min-width: 721px) {
+  .recipe-modal__backdrop {
+    align-items: center;
+    padding: 32px;
+  }
+
+  .recipe-modal {
+    border-radius: 20px;
+    max-height: min(80vh, 720px);
+  }
+}
+
 /* ============================================
    Block: name-popup
    ============================================ */
